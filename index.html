@@ -88,7 +88,14 @@ and open the template in the editor.
             var cron = null;;
             
             function featureinfo(prop){
-            	return (JSON.stringify(prop)).replace(/{/g,"").replace(/}/g,"").replace(/,/g,"<br />");
+            	var Provincia = prop.DEN_UTS;
+            	var Popolazione = prop.POP;
+            	var values = data[today];
+            	var Value = values[prop.COD_PROV];
+				return "Provincia: " + Provincia + "<br />" + 
+					   "Popolazione: " + Popolazione + "<br />" +
+					   "Casi: " + Value;
+//             	return (JSON.stringify(prop)).replace(/{/g,"").replace(/}/g,"").replace(/,/g,"<br />");
             }
             
             function formatDate(date) {
