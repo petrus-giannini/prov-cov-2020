@@ -75,8 +75,9 @@ and open the template in the editor.
         
         	var data_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province.json";
             var theMap;
+            var theMarker;
             var geojsonLayer;
-            var dpc_coord = [41.957002,12.4844508];
+            var marker_coord = [41.957002,12.4844508];
             // array dei giorni
             var days;
             var today;
@@ -153,6 +154,8 @@ and open the template in the editor.
             		url : data_url,
             		error : function(){},
             		success : function(remotedata){
+                    	theMarker = new L.marker(marker_coord, {draggable:'false'}).bindPopup("Attedere prego").addTo(theMap).openPopup();
+
             			var theData = JSON.parse(remotedata);
             			for (var i=0; i<theData.length; i++){
             				// verifica se esiste il giorno
@@ -206,7 +209,10 @@ and open the template in the editor.
                     					setDay(ui.value);
                     				}
                     			});
-                        	}
+                    			
+                    			if (theMarker != undefined) {
+                    				theMap.removeLayer(theMarker);
+                    	        };                        	}
                         });
             			
                 		days =  Object.keys(data).sort();
@@ -215,7 +221,7 @@ and open the template in the editor.
             		}
             	});
             	
-                theMap = L.map('map').setView(dpc_coord, 6); //41.8624,12.5198?z=16
+                theMap = L.map('map').setView(marker_coord, 6); //41.8624,12.5198?z=16
 
                 // lo stesso progetto mapbox usato per Maja
 //                 var baseLayer1 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
@@ -226,29 +232,27 @@ and open the template in the editor.
                 var baseLayer1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 	maxZoom: 19,
                 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                });
-                
-//                 var baseLayer2 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
-//                 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-//                 	subdomains: 'abcd',
-//                 	minZoom: 0,
-//                 	maxZoom: 20,
-//                 	ext: 'png'
-//                 });
-                
-                var baseLayer2 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
-                	maxZoom: 20,
-                	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
                 }).addTo(theMap);
+                
+                var baseLayer2 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+					attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+					,maxZoom: 18
+					,id: 'mapbox.dark'
+					,accessToken: 'pk.eyJ1IjoicGdpYW5uaW5pIiwiYSI6ImRlZDU2ODU1M2I5YTc4MTYwNjRlYjU5MThkZDVhNjA1In0.ba6tiXy4z8trtgIP4lXeIA'
+				});
+                
+//                 var baseLayer2 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+//                 	maxZoom: 20,
+//                 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+//                 });
                 
                 var bases = {
                     "Base 1" : baseLayer1,
                     "Base 2" : baseLayer2,
                 };
     
-                var overlay = {
-                }
- 
+//                 var overlay = {
+//                 }
 // 				L.control.mousePosition().addTo(theMap);
                  
                 // controllo watermark
@@ -273,7 +277,7 @@ and open the template in the editor.
                 
                 var lControl = L.control.layers(
                     bases, 
-                    overlay
+//                     overlay
                 ).addTo(theMap);
       
             });
