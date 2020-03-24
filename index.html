@@ -164,22 +164,32 @@ and open the template in the editor.
                 theMap = L.map('map').setView(dpc_coord, 6); //41.8624,12.5198?z=16
 
                 // lo stesso progetto mapbox usato per Maja
-                var baseLayer1 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+//                 var baseLayer1 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+//                 	maxZoom: 20,
+//                 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+//                 }).addTo(theMap);
+
+                var baseLayer1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                	maxZoom: 19,
+                	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(theMap);
+                
+//                 var baseLayer2 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
+//                 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+//                 	subdomains: 'abcd',
+//                 	minZoom: 0,
+//                 	maxZoom: 20,
+//                 	ext: 'png'
+//                 });
+                
+                var baseLayer2 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
                 	maxZoom: 20,
                 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-                }).addTo(theMap);
-
-                var baseLayer2 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
-                	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                	subdomains: 'abcd',
-                	minZoom: 0,
-                	maxZoom: 20,
-                	ext: 'png'
                 });
                 
                 var bases = {
-                    "Stadia Maps" : baseLayer1,
-                    "Stamen Design" : baseLayer2,
+                    "Base 1" : baseLayer1,
+                    "Base 2" : baseLayer2,
                 };
     
                 var overlay = {
