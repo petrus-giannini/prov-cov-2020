@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Corona</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+
+   <!--         <link rel="stylesheet" href="L.Control.MousePosition.css" /> -->
+        
+        <style>
+            body {
+                margin: 0px;
+            }
+            #heading {
+                text-align: center;
+                padding: 20px;
+                background: #333;
+                color: #CCC;
+            }
+            div#map {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                background-color: #333;
+            }
+
+            .leaflet-canvas-layer {
+                opacity: 0.55;
+            }
+            
+            .leflet-control-monitor {
+                padding: 4px;
+                background-color: #eee;
+                width: auto;
+                height: auto;
+                margin: 0;
+                padding: 4px;
+                border-radius: 4px;
+                
+            }
+            .leflet-control-monitor ul{
+            	list-style: none;
+            	padding:0;
+            	margin:0;
+            }
+            .leflet-control-monitor ul li {
+            	width: 100%;
+            }
+            .leflet-control-monitor ul li span{
+            	float:right;
+            }
+        </style>
+		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+<!--         <script src="L.Control.MousePosition.js"></script> -->
+        <script src="L.Control.Custombox.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+        <script type="text/javascript">
+        
+        	var data_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province.json";
+            var theMap;
+            var geojsonLayer;
+            var dpc_coord = [41.957002,12.4844508];
+            // array dei giorni
+            var days;
+            var today;
+            // array degli stili
+            var data = {};
+            var opacityCoefficient = 3;
+            
+            function refreshLayerTime(theLayer, theTime){
+                theLayer.setParams({time : theTime});
+            }
+        
+            function featureinfo(prop){
+            	return (JSON.stringify(prop)).replace(/{/g,"").replace(/}/g,"").replace(/,/g,"<br />");
+            }
+            
+            function formatDate(date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear();
+
+                if (month.length < 2) 
+                    month = '0' + month;
+                if (day.length < 2) 
+                    day = '0' + day;
+
+                return [year, month, day].join('-');
+            }
+            
+            function styleFeature(feat){
+            	var prov = feat.properties.COD_PROV;
+            	var pop = feat.properties.POP;
+            	var values = data[today];
+            	var value = values[prov];
+            	var op = value / pop * 100 * opacityCoefficient;
+				return {
+					fillColor: '#FC4E2A',
+					weight: 2,
+					opacity: op,
+					color: 'white',
+					dashArray: '1',
+					fillOpacity: op
+				};
+            }
+            
+            function setDay(index){
+            	theDay = days[index];
+            	if (theDay) {
+            		today = theDay;
+            		if (geojsonLayer){
+                		geojsonLayer.setStyle(styleFeature);
+            		}
+            		$('#lbl_last_update').html(today);
+            	}
+            }
+            
+            $(function(){
+            
+            	// carica dati
+            	$.ajax({
+            		url : data_url,
+            		error : function(){},
+            		success : function(remotedata){
+            			var theData = JSON.parse(remotedata);
+            			for (var i=0; i<theData.length; i++){
+            				// verifica se esiste il giorno
+            				var theDate = theData[i].data.substring(0, 10);
+            				if (!data[theDate]) {
+            					data[theDate] = {};				
+            				}
+            				data[theDate][theData[i].codice_provincia] = theData[i].totale_casi;
+            			}
+            			
+            			$.ajax({
+                        	url : "provincie.json",
+                        	error : function(){alert("error getting geojson")},
+                        	success : function(geojson){
+                        		geojsonLayer = L.geoJSON(geojson, {
+                        			style : styleFeature
+                        		})
+                        		.bindPopup(function (layer) {
+        							return featureinfo(layer.feature.properties);
+                        		})
+                        		.addTo(theMap);
+                        	}
+                        });
+            			
+                    	days =  Object.keys(data).sort();
+                    	setDay(days.length-1);
+
+            		}
+            	});
+            	
+                theMap = L.map('map').setView(dpc_coord, 6); //41.8624,12.5198?z=16
+
+                // lo stesso progetto mapbox usato per Maja
+                var baseLayer1 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+                	maxZoom: 20,
+                	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+                }).addTo(theMap);
+
+                var baseLayer2 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
+                	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                	subdomains: 'abcd',
+                	minZoom: 0,
+                	maxZoom: 20,
+                	ext: 'png'
+                });
+                
+                var bases = {
+                    "Stadia Maps" : baseLayer1,
+                    "Stamen Design" : baseLayer2,
+                };
+    
+                var overlay = {
+                }
+ 
+// 				L.control.mousePosition().addTo(theMap);
+                L.Control.theBox({ position: 'bottomleft' }).addTo(theMap);
+                if (today){
+                	$('#lbl_last_update').html(today);
+                }
+                 
+                // controllo watermark
+                L.Control.Watermark = L.Control.extend({
+                    onAdd: function(map) {
+                        var img = L.DomUtil.create('img');
+
+                        img.src = 'beingthere.jpg';
+                        img.style.width = '80px';
+
+                        return img;
+                    },
+
+                    onRemove: function(map) {
+                        // Nothing to do here
+                    }
+                });
+                L.control.watermark = function(opts) {
+                    return new L.Control.Watermark(opts);
+                };
+                L.control.watermark({ position: 'topright' }).addTo(theMap);
+                
+                var lControl = L.control.layers(
+                    bases, 
+                    overlay
+                ).addTo(theMap);
+      
+            });
+        </script>
+    </head>
+    <body>
+        <div id="controls">
+            
+            
+        </div>
+        <div id="map"></div>
+    </body>
+</html>
