@@ -102,7 +102,7 @@ and open the template in the editor.
             function featureinfo(prop){
             	var Provincia = prop.DEN_UTS;
             	var Popolazione = prop.POP;
-            	var Value = data[today][prop.COD_PROV];
+            	var Value = data[days[days.length-1]][prop.COD_PROV];
             	var values = []; 
             	
             	var Panel = $("<div />")
