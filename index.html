@@ -30,6 +30,10 @@ and open the template in the editor.
                 background-color: #333;
             }
 
+			.leaflet-popup-content {
+				width:auto !important;
+			}
+			
             .leaflet-canvas-layer {
                 opacity: 0.55;
             }
@@ -56,6 +60,13 @@ and open the template in the editor.
             	float:right;
             }
             
+            #lbl_last_update {
+            	margin : 0 auto 4px;
+            	width: 100%;
+            	text-align: center;
+            	display: block;
+            }
+            
             #time-slider-handle {
                 width: 3em;
 				height: 1.6em;
@@ -70,6 +81,7 @@ and open the template in the editor.
         <script src="L.Control.Custombox.js"></script>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
         <script type="text/javascript">
         
@@ -90,12 +102,39 @@ and open the template in the editor.
             function featureinfo(prop){
             	var Provincia = prop.DEN_UTS;
             	var Popolazione = prop.POP;
-            	var values = data[today];
-            	var Value = values[prop.COD_PROV];
-				return "Provincia: " + Provincia + "<br />" + 
-					   "Popolazione: " + Popolazione + "<br />" +
-					   "Casi: " + Value;
-//             	return (JSON.stringify(prop)).replace(/{/g,"").replace(/}/g,"").replace(/,/g,"<br />");
+            	var Value = data[today][prop.COD_PROV];
+            	var values = []; 
+            	
+            	var Panel = $("<div />")
+            		.append(
+           				$('<p />').html(
+        					"Provincia di <strong>" + Provincia + "</strong><br />Popolazione: " + (Popolazione).toLocaleString("it") + "<br />" + 
+        					"Casi al " + displayDate(formatDate(new Date())) + ": " + (Value).toLocaleString("it") + " (" + (Math.round((Value*100/Popolazione)*100)/100).toLocaleString("it") + "%)"
+       					)
+      				);
+
+            	if (chartReady == true){
+					
+            		var arCasi = [['Giorno', 'Casi', { role: 'style' }]];
+                	for(var i=0; i<days.length; i++){
+                		arCasi.push([displayDate(days[i], true), data[days[i]][prop.COD_PROV], '#FC4E2A']);
+                	}
+					var chartdata = google.visualization.arrayToDataTable(arCasi);
+
+                    var options = {
+						'width' : 420,
+						'height' : 200,
+						'legend' : 'none',
+						'backgroundColor' : '#eee'
+   					};
+
+                    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+                    chart.draw(chartdata, options);
+
+                    $("#chart_div").detach().appendTo(Panel);
+            	}
+            	
+				return Panel[0];
             }
             
             function formatDate(date) {
@@ -112,10 +151,10 @@ and open the template in the editor.
                 return [year, month, day].join('-');
             }
             
-            function displayDate(datestring){
+            function displayDate(datestring, small){
             	// una data nel formato yyyy-mm-dd viene mostrata come dd/mm/yyyy
             	var t = datestring.split("-");
-            	return t[2] + "/" + t[1] + "/" + t[0];
+            	return t[2] + "/" + t[1] + (small ? "" : "/" + t[0]);
             }
             
             function styleFeature(feat){
@@ -181,7 +220,10 @@ and open the template in the editor.
                         			style : styleFeature
                         		})
                         		.bindPopup(function (layer) {
-        							return featureinfo(layer.feature.properties);
+         							return featureinfo(layer.feature.properties);
+                        		})
+                        		.bindTooltip(function (layer) {
+         							return layer.feature.properties.DEN_UTS;
                         		})
                         		.addTo(theMap);
 
@@ -208,11 +250,11 @@ and open the template in the editor.
 										});
 									},
                     				slide : function(event, ui){
-                    					console.log("slide event");
+//                     					console.log("slide event");
                     					setDay(ui.value);
                     				},
                     				change: function( event, ui ) {
-                    					console.log("change event");
+//                     					console.log("change event");
                     					setDay(ui.value);
                     				}
                     			});
@@ -289,12 +331,19 @@ and open the template in the editor.
       
             });
         </script>
+        <script>
+        	var chartReady = false;
+	        google.charts.load('current', {'packages':['corechart']});
+	        google.charts.setOnLoadCallback(drawChart);
+			
+	        function drawChart(){
+	        	chartReady = true;
+	        }
+        </script>
     </head>
     <body>
-        <div id="controls">
-            
-            
-        </div>
+        <div id="controls"></div>
         <div id="map"></div>
+        <div id="chart_div"></div>
     </body>
 </html>
