@@ -1,0 +1,33 @@
+.leaflet-popup-content {
+	width: auto !important;
+	font-size: 1.3em;
+}
+
+.leaflet-canvas-layer {
+	opacity: 0.55;
+}
+
+.leflet-control-monitor {
+	background-color: #eee;
+	width: auto;
+	min-width: 220px;
+	height: auto;
+	margin: 0;
+	padding: 10px 42px 10px 10px;
+	border-radius: 4px;
+	font-size: 1.3em;
+}
+
+.leflet-control-monitor ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.leflet-control-monitor ul li {
+	width: 100%;
+}
+
+.leflet-control-monitor ul li span {
+	float: right;
+}
