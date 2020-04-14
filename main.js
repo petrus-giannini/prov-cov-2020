@@ -9,21 +9,24 @@ var today;
 // array dei dati
 var data = {};
 // coefficiente di opacità da moltiplicare al valore per ottenere maggiore visibilità della campitura
-var opacityCoefficient = 2.5;
-// handle intervallo
+var opacityCoefficient = 1.8;
+// handle intervallo animazione
 var cron = null;
+// intervallo animazione in millisecondi
+var cron_millisecond = 250;
 
 // parametri
 // province
 var data_url = "https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province.json";
 // grafici
-var chartWitdth = 420;
-var chartHeight = 200;
+var chartWitdth = 280;
+var chartHeight = 140;
 var colorCasi = '#FC4E2A';
 var colorTrend = '#FC902A';
 var colorConfini = '#FFAA22';
 
 
+// restituisce una datta formattata come yyyy-mm-dd
 function formatDate(date) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
@@ -38,12 +41,14 @@ function formatDate(date) {
     return [year, month, day].join('-');
 }
 
+//una data nel formato yyyy-mm-dd viene mostrata come dd/mm/yyyy
+// se small == true allora dd/mm
 function displayDate(datestring, small){
-	// una data nel formato yyyy-mm-dd viene mostrata come dd/mm/yyyy
 	var t = datestring.split("-");
 	return t[2] + "/" + t[1] + (small ? "" : "/" + t[0]);
 }
 
+// stile del layer casi
 function styleFeatureCasi(feat){
 	var prov = feat.properties.COD_PROV;
 	var pop = feat.properties.POP;
@@ -60,6 +65,7 @@ function styleFeatureCasi(feat){
 	};
 }
 
+// stile del layer trend (non usato per ora)
 function styleFeatureTrend(feat){
 	var prov = feat.properties.COD_PROV;
 	var pop = feat.properties.POP;
@@ -86,6 +92,7 @@ function styleFeatureTrend(feat){
 	};
 }
 
+// imposta il giorno corrente
 function setDay(index){
 	theDay = days[index];
 	if (theDay) {
@@ -100,6 +107,7 @@ function setDay(index){
 	}
 }
 
+// imposta un giorno in avanti, da chiamare con un setinterval
 function forward(){
 	days =  Object.keys(data).sort();
 	var index = days.indexOf(today);
@@ -109,8 +117,8 @@ function forward(){
 	$('#time-slider').slider('value', index+1);
 }
 
-$(function(){
 
+$(function(){
 	// carica dati
 	$.ajax({
 		url : data_url,
@@ -139,11 +147,23 @@ $(function(){
             		.bindPopup(function (layer) {
 						return featureinfo(layer.feature.properties);
             		})
-            		.bindTooltip(function (layer) {
-						return layer.feature.properties.DEN_UTS;
-            		})
+            		.bindTooltip(
+        				function (layer) { return layer.feature.properties.DEN_UTS; },
+        				{
+//        					permanent : true
+        				}
+    				)
+    				//.openTooltip()
+            		
+//            		.onEachFeature(function(feature, layer){
+//            			layer.bindPopup(feature.properties.DEN_UTS,{
+//            				permanent : true,
+//            			})
+//            		})
             		.addTo(theMap);
 
+
+            		
 //            		// layer del trend
 //            		geojsonLayerTrend = L.geoJSON(geojson, {
 //            			style : styleFeatureTrend
@@ -169,7 +189,7 @@ $(function(){
 						create: function() {
 							$('#time-slider-handle').text(">").click(function(){
 								if (cron == null){
-									window.cron = setInterval(forward, 500);
+									window.cron = setInterval(forward, cron_millisecond);
 									$(this).text("||");
 								} else {
 									window.clearInterval(cron);
@@ -215,7 +235,7 @@ $(function(){
 	
     theMap = L.map('map', { zoomControl: false }).setView(marker_coord, 6); //41.8624,12.5198?z=16
 
-    // lo stesso progetto mapbox usato per Maja
+//    // lo stesso progetto mapbox usato per Maja
 //                 var baseLayer1 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
 //                 	maxZoom: 20,
 //                 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'

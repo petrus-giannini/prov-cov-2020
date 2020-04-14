@@ -12,13 +12,7 @@ function featureinfo(prop){
 	var Value = data[days[days.length-1]][prop.COD_PROV];
 	var values = []; 
 	
-	var Panel = $("<div />")
-		.append(
-			$('<p />').html(
-				"Provincia di <strong>" + Provincia + "</strong><br />Popolazione: " + (Popolazione).toLocaleString("it") + "<br />" + 
-				"Casi al " + displayDate(formatDate(new Date())) + ": " + (Value).toLocaleString("it") + " (" + (Math.round((Value*100/Popolazione)*100)/100).toLocaleString("it") + "%)"
-			)
-		);
+	var Panel = $("<div />");
 
 	if (chartReady == true){
 		
@@ -68,6 +62,13 @@ function featureinfo(prop){
 
         $("#chart_div2").detach().appendTo(Panel);
 	}
+	
+	Panel.append(
+		$('<p />').html(
+				"Provincia di <strong>" + Provincia + "</strong><br />Popolazione: " + (Popolazione).toLocaleString("it") + "<br />" + 
+				"Casi al " + displayDate(formatDate(new Date())) + ": " + (Value).toLocaleString("it") + " (" + (Math.round((Value*100/Popolazione)*100)/100).toLocaleString("it") + "%)"
+			)
+		);
 	
 	return Panel[0];
 }
