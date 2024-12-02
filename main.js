@@ -235,28 +235,15 @@ $(function(){
 	
     theMap = L.map('map', { zoomControl: false }).setView(marker_coord, 6); //41.8624,12.5198?z=16
 
-//    // lo stesso progetto mapbox usato per Maja
-//                 var baseLayer1 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-//                 	maxZoom: 20,
-//                 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-//                 }).addTo(theMap);
-
     var baseLayer1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     	maxZoom: 19,
     	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
     
-    var baseLayer2 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
-		,maxZoom: 18
-		,id: 'mapbox.dark'
-		,accessToken: 'pk.eyJ1IjoicGdpYW5uaW5pIiwiYSI6ImRlZDU2ODU1M2I5YTc4MTYwNjRlYjU5MThkZDVhNjA1In0.ba6tiXy4z8trtgIP4lXeIA'
-	}).addTo(theMap);
-    
-//                 var baseLayer2 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
-//                 	maxZoom: 20,
-//                 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-//                 });
+    var baseLayer2 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20,
+	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    });
     
      
     // controllo watermark
